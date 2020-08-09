@@ -1,0 +1,20 @@
+.navItem{
+    text-decoration: none;
+    font-weight: bold;
+    color: inherit;
+    transition: all .3s;
+    padding: 1rem;
+    height: 100%;
+    &:hover{
+        color: rgb(218, 103, 90);
+    }
+}
+
+.navItemActive{
+    color: purple;
+    background-color: salmon;
+    &:hover{
+        color: black;
+        background-color: rgb(252, 96, 79);
+    }
+}

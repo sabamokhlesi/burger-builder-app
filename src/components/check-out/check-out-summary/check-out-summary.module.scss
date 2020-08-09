@@ -1,0 +1,23 @@
+.checkOutSummary{
+    text-align: center;
+    margin: auto;
+    
+}
+
+.checkOutButtons{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    button{
+        border: 1px solid black ;
+        padding: .5rem 1rem;
+        margin: .5rem;
+        border-radius: 200px;
+        transition: all .2s;
+        cursor: pointer;
+        outline: none;
+            &:hover{
+                background-color: orange;
+            }
+    }
+}
