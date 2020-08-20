@@ -18,8 +18,17 @@
             transition: all .2s;
             cursor: pointer;
             outline: none;
+                &:disabled{
+                    background-color: silver;
+                    cursor: not-allowed;
+                }
                 &:hover{
                     background-color: orange;
+                }
+                &:hover{
+                    &:disabled{
+                        background-color: silver;
+                    }
                 }
         }
     }

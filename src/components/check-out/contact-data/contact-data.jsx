@@ -2,16 +2,80 @@ import React from 'react'
 import styles from './contact-data.module.scss'
 import axios from '../../../axios-orders'
 import Spinner from '../../spinner/spinner'
+import Input from '../../input/input'
+import {connect} from 'react-redux'
 class ContactData extends React.Component{
     state = {
-        name: '',
-        email: '',
-        address: {
-            street : '',
-            unit: '',
-            PO: ''
+        form: 
+        {name: {
+            inputtype: 'input',
+            inputConfig:{
+                type: 'text',
+                placeholder: 'Name'
+            },
+            value: '',
+            rules:{
+                required:true
+            },
+            valid: false,
+            touched: false
         },
-        loading:false
+        email: {
+            inputtype: 'input',
+            inputConfig:{
+                type: 'email',
+                placeholder: 'Email'
+            },
+            value: '',
+            rules:{
+                required:true
+            },
+            valid: false,
+            touched: false
+        },
+        street : {
+            inputtype: 'input',
+            inputConfig:{
+                type: 'text',
+                placeholder: 'Street'
+            },
+            value: '',
+            rules:{
+                required:true
+            },
+            valid: false,
+            touched: false
+        },
+        unit: {
+            inputtype: 'input',
+            inputConfig:{
+                type: 'number',
+                placeholder: 'Unit Number'
+            },
+            value: '',
+            rules:{
+                required:true
+            },
+            valid: false,
+            touched: false
+        },
+        PO: {
+            inputtype: 'input',
+            inputConfig:{
+                type: 'text',
+                placeholder: 'Postal Code'
+            },
+            value: '',
+            rules:{
+                required:true,
+                minlength: 5,
+                maxlegth:6
+            },
+            valid: false,
+            touched: false
+        }},
+        loading:false,
+        validInputs: false
     }
 
     orderClicked = (event) =>{
@@ -19,15 +83,15 @@ class ContactData extends React.Component{
         this.setState({loading:true})
         const ingredients = this.props.ingredients
         const totalPrice = this.props.price
+        const formData = {}
+        for (let item in this.state.form){
+            formData[item] = this.state.form[item].value
+        }
+
         const order = {
             ingredients: ingredients,
             totalPrice: totalPrice,
-            deliveryMethod:'fastest',
-            address: {
-                PO: 12345,
-                street:'yonge',
-                unit: 3914
-            }
+            orderData: formData
 
         }
         axios.post('./orders.json',order)
@@ -38,16 +102,46 @@ class ContactData extends React.Component{
         .catch(err => this.setState({loading:false}))
     }
 
+    validityHandler = (value, rules) =>{
+        let isvalid = true
+        if (rules.required){
+            isvalid = value.trim()!=='' && isvalid
+        }
+        if (rules.minlength){
+            isvalid = value.trim().length >= rules.minlength && isvalid
+        }
+        if (rules.maxlength){
+            isvalid = value.trim().length <= rules.maxlength && isvalid
+        }
+        return isvalid
+    }
+
+    inputChangedHandler = (event, inputIdentifier) => {
+        const updatedOrderForm = {
+            ...this.state.form
+        };
+        const updatedFormElement = { 
+            ...updatedOrderForm[inputIdentifier]
+        };
+        updatedFormElement.value = event.target.value;
+        updatedFormElement.valid = this.validityHandler(updatedFormElement.value,updatedFormElement.rules)
+        updatedFormElement.touched = true
+        updatedOrderForm[inputIdentifier] = updatedFormElement;
+        let validInputs = true
+        for(let inputIdentifier in updatedOrderForm ){
+            validInputs = updatedOrderForm[inputIdentifier].valid && validInputs
+        }
+        this.setState({form: updatedOrderForm, validInputs:validInputs});
+    }
 
     render(){
+        const formArray = []
+        for (let key in this.state.form) {
+            formArray.push({id: key, config: this.state.form[key]})}
         let form = (
         <form action="">
-            <input type="text" name='name' placeholder='Your Name'/>
-            <input type="email" name='email' placeholder='Your Email'/>
-            <input type="text" name='street' placeholder='Your Street'/>
-            <input type="text" name='unit' placeholder='Your Unit Number'/>
-            <input type="text" name='postal' placeholder='Your Postal Code'/>
-            <button onClick={this.orderClicked} ingredients={this.props.ingredients}>Order</button>
+            {formArray.map(element =>(<Input valid={element.config.valid} key={element.id} touched={element.config.touched} inputtype={element.config.inputtype} type={element.config.inputConfig.type} placeholder={element.config.inputConfig.placeholder} changed={(event) => this.inputChangedHandler(event, element.id)} value={element.config.value}/>))}
+            <button onClick={this.orderClicked} ingredients={this.props.ingredients} disabled={!this.state.validInputs}>Order</button>
         </form>)
         if (this.state.loading) {
             form = <Spinner/>
@@ -61,4 +155,11 @@ class ContactData extends React.Component{
     }
 }
 
-export default ContactData
+const mapStateToProps = state => {
+    return{
+        ingredients: state.ingredients,
+        price: state.totalPrice
+    }
+}
+
+export default connect(mapStateToProps)(ContactData)
