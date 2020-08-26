@@ -3,26 +3,18 @@ import styles from './orders.module.scss'
 import Order from './order/order'
 import axios from '../../axios-orders'
 import withErrorHandler from '../withErrorHandler/withErrorHandler'
+import {connect} from 'react-redux'
+import * as actionTypes from '../../store/actions/index'
 class Orders extends React.Component{
-    state={
-        orders:[],
-        loading:true
-    }
+    
     componentDidMount(){
-        axios.get('/orders.json')
-        .then(res =>{
-            const fetchedOrders = []
-            for (let key in res.data) {
-                fetchedOrders.push({...res.data[key], ID:key})
-            }
-            this.setState({loading:false, orders:fetchedOrders})
-        }).catch(err=>{this.setState({loading:false})})
+        this.props.onFetchOrder(this.props.token)
     }
     render(){
         
         return(
             <div className={styles.Orders}>
-                {this.state.orders.map(order =>{
+                {this.props.orders.map(order =>{
                    return (<Order key={order.ID} orderID={order.ID} price={order.totalPrice} ingredients={order.ingredients}/>)
                 })}
             </div>
@@ -30,4 +22,16 @@ class Orders extends React.Component{
     }
 }
 
-export default withErrorHandler(Orders,axios)
+const mapStateToProps = state =>{
+    return{
+        orders: state.orders.orders,
+        loading: state.orders.loading,
+        token: state.auth.token
+    }
+}
+const mapDispatchToProps =dispatch =>{
+    return{
+        onFetchOrder: (token) => dispatch(actionTypes.fetchOrder(token))
+    }
+}
+export default connect(mapStateToProps,mapDispatchToProps)(withErrorHandler(Orders,axios))

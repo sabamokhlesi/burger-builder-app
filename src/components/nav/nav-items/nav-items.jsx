@@ -6,6 +6,7 @@ const navItems = (props) =>(
         <NavItem link='/' exact>Burger Builder</NavItem>
         <NavItem link='/checkOut'>Check Out</NavItem>
         <NavItem link='/orders'>orders</NavItem>
+        <NavItem link='/auth'>SignIn/out</NavItem>
     </div>
 )
 

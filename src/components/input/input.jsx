@@ -12,10 +12,10 @@ const input = (props) =>{
             inputElement = <input className={classes.join(' ')} onChange={props.changed} {...props} />
             break
         case ('textArea'):
-            inputElement = <textarea className={styles.textArea} {...props} onChange={props.changed}></textarea>
+            inputElement = <textarea className={styles.textArea}  onChange={props.changed} {...props}></textarea>
             break
         default:
-            inputElement = <input className={styles.input} {...props} onChange={props.changed}/>
+            inputElement = <input className={styles.input} onChange={props.changed} {...props}/>
     }
     return(
         <div>
