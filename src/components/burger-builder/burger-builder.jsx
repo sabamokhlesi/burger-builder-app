@@ -24,7 +24,12 @@ class BurgerBuilder extends React.Component{
 
 
     updateordering =() =>{
-        this.setState({ordering:true})
+        if (this.props.isLogedIn) {
+            this.setState( { ordering: true } );
+        } else {
+            // this.props.onSetAuthRedirectPath('/checkout');
+            this.props.history.push('/auth');
+        }
     }
     updatePurchaseable= (updatedIngredients) =>{
         const igCount = Object.keys(updatedIngredients).map(key => { return updatedIngredients[key]}).reduce((igCount,el) =>{return igCount+el},0)
@@ -35,16 +40,6 @@ class BurgerBuilder extends React.Component{
     }
 
     continueClicked = () => {
-        // const queryParams = [];
-        // for (let i in this.state.ingredients) {
-        //     queryParams.push(encodeURIComponent(i) + '=' + encodeURIComponent(this.state.ingredients[i]));
-        // }
-        // queryParams.push('price='+this.state.totalPrice)
-        // const queryString = queryParams.join('&');
-        // this.props.history.push({
-        //     pathname: '/checkout',
-        //     search: '?' + queryString
-        // });
         this.props.onPurchaseInit()
         this.props.history.push('/checkout')
     }
@@ -80,7 +75,8 @@ const mapStateToProps = state =>{
     return {
         ing : state.burgerBuilder.ingredients,
         price: state.burgerBuilder.totalPrice,
-        erorr: state.burgerBuilder.erorr
+        erorr: state.burgerBuilder.erorr,
+        isLogedIn: state.auth.token !== null
     }
 }
 

@@ -2,23 +2,72 @@ import React from 'react';
 import './App.css';
 import Nav from './components/nav/nav'
 import BurgerBuilder from './components/burger-builder/burger-builder'
-import CheckOut from './components/check-out/check-out'
-import {Route,Switch} from 'react-router-dom'
-import Orders from './components/orders/orders'
-import Auth from './components/Authenticating/auth'
+import {Route,Switch,Redirect} from 'react-router-dom'
+import Logout from './components/Authenticating/logout/logout'
+import {connect} from 'react-redux'
+import * as actions from './store/actions/index'
+import asyncComponent from './components/hoc/asyncComponent/asyncComponent'
 
-function App() {
-  return (
-    <div className="App">
-      <Nav/>
+
+const asyncCheckout = asyncComponent(() => {
+  return import('./components/check-out/check-out');
+});
+
+const asyncOrders = asyncComponent(() => {
+  return import('./components/orders/orders');
+});
+
+const asyncAuth = asyncComponent(() => {
+  return import('./components/Authenticating/auth');
+});
+
+class App extends React.Component {
+  componentDidMount () {
+    this.props.onTryAutoSignup();
+  }
+  render () {
+    let routes = (
       <Switch>
-        <Route path='/orders' component={Orders}/>
-        <Route path='/checkOut' component= {CheckOut}/>
-        <Route path='/auth' component={Auth}/>
-        <Route path='/' exact component= {BurgerBuilder}/>
+        
+        <Route path="/auth" component={asyncAuth} />
+        <Route path="/" exact component={BurgerBuilder} />
+        <Redirect to="/" />
       </Switch>
-    </div>
-  );
+    );
+
+    if ( this.props.isAuthenticated ) {
+      routes = (
+        <Switch>
+          <Route path="/checkOut" component={asyncCheckout} />
+          <Route path="/orders" component={asyncOrders} />
+          <Route path="/logout" component={Logout} />
+          <Route path="/" exact component={BurgerBuilder} />
+          <Redirect to="/" />
+        </Switch>
+      );
+    }
+
+    return (
+      <div>
+        <Nav/>
+        {routes}
+        
+      </div>
+    );
+  }
+  
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    isAuthenticated: state.auth.token !== null
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onTryAutoSignup: () => dispatch( actions.authCheckState() )
+  };
+};
+
+export default connect( mapStateToProps, mapDispatchToProps )(App);

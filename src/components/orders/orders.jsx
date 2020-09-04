@@ -8,7 +8,7 @@ import * as actionTypes from '../../store/actions/index'
 class Orders extends React.Component{
     
     componentDidMount(){
-        this.props.onFetchOrder(this.props.token)
+        this.props.onFetchOrder(this.props.token,this.props.userId)
     }
     render(){
         
@@ -26,12 +26,13 @@ const mapStateToProps = state =>{
     return{
         orders: state.orders.orders,
         loading: state.orders.loading,
-        token: state.auth.token
+        token: state.auth.token,
+        userId:state.auth.userId
     }
 }
 const mapDispatchToProps =dispatch =>{
     return{
-        onFetchOrder: (token) => dispatch(actionTypes.fetchOrder(token))
+        onFetchOrder: (token,userId) => dispatch(actionTypes.fetchOrder(token,userId))
     }
 }
 export default connect(mapStateToProps,mapDispatchToProps)(withErrorHandler(Orders,axios))

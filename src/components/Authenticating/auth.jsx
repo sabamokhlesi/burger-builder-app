@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Redirect } from 'react-router-dom';
 import Spinner from '../spinner/spinner'
 import Input from '../input/input';
 import styles from './auth.module.scss';
@@ -128,8 +129,13 @@ class Auth extends Component {
                 <h3>Something went wrong! Please try again</h3>
             );
         }
+        let authRedirect = null;
+        if (this.props.isLogedIn) {
+            authRedirect = <Redirect to='/'/>
+        }
         return (
             <div className={styles.auth}>
+                {authRedirect}
                 {errorMessage}
                 <form onSubmit={this.submitHandler}>
                     {form}
@@ -143,7 +149,8 @@ class Auth extends Component {
 const mapStateToProps = state => {
     return {
         loading: state.auth.loading,
-        error: state.auth.error
+        error: state.auth.error,
+        isLogedIn: state.auth.token !== null
     };
 };
 const mapDispatchToProps = dispatch => {
